@@ -67,9 +67,14 @@ const AppSidebar = () => {
   return (
     <Sidebar className="h-screen flex flex-col">
       <SidebarContent className="flex-1">
-        {/* Cloud Cast Branding */}
         <SidebarGroup>
-          <SidebarGroupLabel>
+          <SidebarGroupLabel className="flex items-center space-x-3">
+            <Image
+              src="/cloud-cast.svg"
+              width={24} // Adjust size as needed
+              height={24}
+              alt="Cloud Cast Logo"
+            />
             <span className="text-2xl font-bold text-blue-600">Cloud Cast</span>
           </SidebarGroupLabel>
           <SidebarGroupContent className="mt-4">
@@ -80,7 +85,7 @@ const AppSidebar = () => {
                     <Link
                       href={url}
                       prefetch
-                      onClick={() => handleNavigation(url, title)} 
+                      onClick={() => handleNavigation(url, title)}
                       className={`flex items-center space-x-4 text-lg py-4 rounded-lg transition-colors ${
                         selected !== title
                           ? "text-gray-800 hover:bg-blue-100"
