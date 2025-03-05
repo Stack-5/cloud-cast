@@ -1,16 +1,23 @@
 import "server-only";
 import { createClient } from "@/lib/supabse/server";
 
-export async function getUserRole() {
+const getUserRole = async (): Promise<string | null> => {
   const supabase = await createClient();
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return null;
+  // ✅ Fetch the authenticated user
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    console.error("Error fetching authenticated user:", userError);
+    return null;
+  }
 
+  console.log("Authenticated User ID:", user.id); // 🔍 Debugging
+
+  // ✅ Fetch the role from `users` table
   const { data, error } = await supabase
     .from("users")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single();
 
   if (error) {
@@ -18,5 +25,9 @@ export async function getUserRole() {
     return null;
   }
 
-  return data?.role || "regular"; 
-}
+  console.log("Fetched Role from DB:", data?.role || "regular"); // 🔍 Debugging
+
+  return data?.role || "regular"; // Default to "regular" if role is missing
+};
+
+export default getUserRole;

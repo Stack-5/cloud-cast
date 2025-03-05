@@ -1,4 +1,4 @@
-import { getUserRole } from "@/lib/get-user-role";
+import  getUserRole  from "@/lib/get-user-role";
 import { createClient } from "@/lib/supabse/server";
 
 const fetchUserData = async () => {

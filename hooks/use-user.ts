@@ -1,15 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { AuthError, Session, User } from "@supabase/supabase-js";
-import { jwtDecode } from "jwt-decode";
-import type { JwtPayload } from "jwt-decode";
 import { createClient } from "@/lib/supabse/client";
-
-type SupabaseJwtPayload = JwtPayload & {
-  app_metadata: { role: string };
-};
 
 const useUser = () => {
   const [user, setUser] = useState<User | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<AuthError | null>(null);
@@ -18,25 +13,34 @@ const useUser = () => {
 
   const fetchUser = useCallback(async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // ✅ Force a session refresh
+      await supabase.auth.refreshSession();
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw userError;
+
+      setUser(user);
+
+      // ✅ Fetch the latest role from the `users` table
+      const { data, error } = await supabase
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
       if (error) throw error;
-      if (!session) return;
 
-      setSession(session);
-      setUser(session.user);
-
-      const decodedJwt = jwtDecode<SupabaseJwtPayload>(session.access_token);
-      setRole(decodedJwt.app_metadata.role);
+      setRole(data.role); // ✅ Always get the live role from DB
     } catch (err) {
       setError(err as AuthError);
     } finally {
       setLoading(false);
     }
-  }, [supabase]); 
+  }, [supabase]);
 
   useEffect(() => {
     fetchUser();
-  }, [fetchUser]); 
+  }, [fetchUser]);
 
   return { loading, error, session, user, role };
 };
