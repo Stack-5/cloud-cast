@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";  // Client-side hook
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabse/client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -11,22 +11,22 @@ import Image from "next/image";
 
 const useGoogleSignIn = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [next, setNext] = useState<string | null>(null); 
+  const [next, setNext] = useState<string | null>(null);
   const supabase = createClient();
-  const [isClient, setIsClient] = useState(false); 
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true); 
+    setIsClient(true);
   }, []);
 
   const searchParams = useSearchParams();
   const nextParam = searchParams.get("next");
 
   useEffect(() => {
-    if (nextParam) {
-      setNext(nextParam); 
+    if (isClient && nextParam) {
+      setNext(nextParam);
     }
-  }, [nextParam]);
+  }, [nextParam, isClient]);
 
   const signInWithGoogle = async () => {
     setIsGoogleLoading(true);
@@ -46,7 +46,7 @@ const useGoogleSignIn = () => {
     }
   };
 
-  return { isGoogleLoading, signInWithGoogle, isClient }; 
+  return { isGoogleLoading, signInWithGoogle, isClient };
 };
 
 const SigninButton = ({ isLoading, onClick }: { isLoading: boolean; onClick: () => void }) => (
@@ -68,11 +68,6 @@ const SigninButton = ({ isLoading, onClick }: { isLoading: boolean; onClick: () 
 const Signin = () => {
   const { isGoogleLoading, signInWithGoogle, isClient } = useGoogleSignIn();
 
-  // Render the SignIn button only after the component has mounted (client-side only)
-  if (!isClient) {
-    return null; // Prevent rendering on the server-side
-  }
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#F4F5F7] px-4">
       <Card className="w-full max-w-sm shadow-lg p-6 bg-white border border-gray-200">
@@ -86,8 +81,7 @@ const Signin = () => {
           <p className="text-sm text-[#172B4D] mb-4">
             Sign in with your institutional email address (<b>@neu.edu.ph</b>)
           </p>
-          {/* SignInButton is only rendered client-side */}
-          <SigninButton isLoading={isGoogleLoading} onClick={signInWithGoogle} />
+          {isClient && <SigninButton isLoading={isGoogleLoading} onClick={signInWithGoogle} />}
           <p className="mt-4 text-xs text-[#172B4D]">
             By signing in, you agree to our Terms of Service and Privacy Policy.
           </p>
