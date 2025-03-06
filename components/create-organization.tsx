@@ -42,9 +42,10 @@ export const CreateOrganizationForm = () => {
     const supabase = createClient();
     const joinCode = generateJoinCode();
 
-    const user = supabase.auth.user(); 
+    // Fetch the currently logged-in user
+    const { data: user, error: authError } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
       console.log("User is not authenticated.");
       setShowErrorAlert(true);
       setLoading(false);
@@ -58,7 +59,7 @@ export const CreateOrganizationForm = () => {
           name: data.name, 
           description: data.description, 
           join_code: joinCode, 
-          created_by: user.id, 
+          created_by: user.user.id, 
         },
       ])
       .select("id");
@@ -69,8 +70,8 @@ export const CreateOrganizationForm = () => {
       return;
     }
 
-    await supabase.from("organization_members").insert([
-      { organization_id: orgData[0].id, user_id: user.id, role: "admin" },
+    await supabase.from("organization_members").insert([ 
+      { organization_id: orgData[0].id, user_id: user.user.id, role: "admin" },
     ]);
 
     setLoading(false);
