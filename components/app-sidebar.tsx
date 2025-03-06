@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Home, Inbox, File, ChevronUp, Plus } from "lucide-react";
+import { Calendar, Home, Inbox, File, ChevronUp } from "lucide-react";
 import Image from "next/image";
-import { createClient } from "@/lib/supabse/client";
+import { useUser } from "@/context/user-context";
 import SignOutButton from "@/components/signout-button";
 import Link from "next/link";
 
@@ -29,14 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import CreateOrganizationDialog from "./create-organization";
 
 const items = [
   { title: "Overview", url: "/dashboard/client", icon: Home },
@@ -53,27 +46,9 @@ const getInitials = (name: string) => {
 };
 
 const AppSidebar = () => {
+  const { user, loading } = useUser(); 
   const [selected, setSelected] = useState("Overview");
-  const [user, setUser] = useState<{ name: string; avatar_url: string } | null>(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("users")
-        .select("name, avatar_url")
-        .single();
-
-      if (error || !data) return setLoading(false);
-
-      setUser(data);
-      setLoading(false);
-    };
-
-    fetchUser();
-  }, []);
 
   const handleNavigation = (url: string, title: string) => {
     setSelected(title);
@@ -97,7 +72,7 @@ const AppSidebar = () => {
                       href={url}
                       prefetch
                       onClick={() => handleNavigation(url, title)}
-                      className={`flex items-center space-x-4 text-lg py-4 rounded-lg transition-colors ${
+                      className={`flex items-center space-x-4 text-lg py-4 rounded-md transition-colors ${
                         selected !== title
                           ? "text-gray-800 hover:bg-blue-100"
                           : "bg-blue-600 text-white font-semibold"
@@ -113,25 +88,10 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Organizations Section with Add Button & Dialog */}
         <SidebarGroup>
           <div className="flex items-center justify-between">
             <SidebarGroupLabel className="text-lg font-medium text-gray-700">Organizations</SidebarGroupLabel>
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="p-1 rounded-md hover:bg-gray-200">
-                  <Plus className="w-4 h-4 text-gray-600" />
-                </button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create a new Organization</DialogTitle>
-                  <DialogDescription>
-                    Enter details for your new organization. This action cannot be undone.
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+            <CreateOrganizationDialog /> 
           </div>
           <SidebarGroupContent />
         </SidebarGroup>

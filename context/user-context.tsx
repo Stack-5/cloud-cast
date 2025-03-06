@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabse/client";
 
-type User = { name: string; avatar_url: string } | null;
+type User = { id: string; name: string; avatar_url: string } | null;
 
 const UserContext = createContext<{ user: User; loading: boolean }>({ user: null, loading: true });
 
@@ -14,7 +14,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchUser = async () => {
       const supabase = createClient();
-      const { data, error } = await supabase.from("users").select("name, avatar_url").single();
+      const { data, error } = await supabase.from("users").select("id, name, avatar_url").single();
 
       if (error || !data) return setLoading(false);
 

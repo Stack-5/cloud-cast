@@ -1,142 +1,139 @@
 "use client";
 
-import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useState, useEffect } from "react";
+import { useUser } from "@/context/user-context";
 import { createClient } from "@/lib/supabse/client";
-import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { CircleAlert } from "lucide-react"; 
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
-// Zod schema for form validation
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Organization name is required" }).max(100),
-  description: z.string().max(500, { message: "Description is too long" }).optional(),
-});
+const CreateOrganizationDialog = () => {
+  const { user } = useUser();
+  const [organizationName, setOrganizationName] = useState("");
+  const [description, setDescription] = useState("");
+  const [joinCode, setJoinCode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-export const CreateOrganizationForm = () => {
-  const [loading, setLoading] = useState(false);
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  // Function to reset form fields
+  const resetForm = () => {
+    setOrganizationName("");
+    setDescription("");
+    setJoinCode(Math.random().toString(36).substr(2, 8));
+  };
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: { name: "", description: "" },
-  });
+  // Reset form fields when the dialog opens
+  useEffect(() => {
+    if (isDialogOpen) {
+      resetForm();
+    }
+  }, [isDialogOpen]);
 
-  const generateJoinCode = () => Math.random().toString(36).substr(2, 8);
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.error("You need to be logged in to create an organization.");
+      return;
+    }
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    setLoading(true);
+    setIsSubmitting(true);
     const supabase = createClient();
-    const joinCode = generateJoinCode();
 
-    // Fetch the currently logged-in user
-    const { data: user, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.log("User is not authenticated.");
-      setShowErrorAlert(true);
-      setLoading(false);
-      return;
-    }
-
-    const { data: orgData, error } = await supabase
-      .from("organizations")
-      .insert([
-        {
-          name: data.name, 
-          description: data.description, 
-          join_code: joinCode, 
-          created_by: user.user.id, 
-        },
-      ])
-      .select("id");
-
-    if (error || !orgData?.[0]?.id) {
-      setShowErrorAlert(true);
-      setLoading(false);
-      return;
-    }
-
-    await supabase.from("organization_members").insert([ 
-      { organization_id: orgData[0].id, user_id: user.user.id, role: "admin" },
+    const { error } = await supabase.from("organizations").insert([
+      {
+        name: organizationName,
+        description,
+        join_code: joinCode,
+        created_by: user.id,
+      },
     ]);
 
-    setLoading(false);
-    setShowSuccessAlert(true);
-    setTimeout(() => setShowSuccessAlert(false), 3000); 
+    if (error) {
+      toast.error("Failed to create organization. Please try again.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    toast.success("Organization created successfully!");
+    setIsDialogOpen(false);
+    setIsSubmitting(false);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Controller
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Organization Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Organization Name" {...field} />
-              </FormControl>
-              <FormDescription>Name of the organization</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          className="p-2 rounded-sm cursor-pointer"
+        >
+          <Plus className="w-6 h-6 text-[#0052CC]" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create a New Organization</DialogTitle>
+          <DialogDescription>
+            Enter the details for your new organization. This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
 
-        <Controller
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Enter a description for your organization" className="resize-none" {...field} />
-              </FormControl>
-              <FormDescription>Optional description of your organization</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700">Join Code</label>
-          <input type="text" value={generateJoinCode()} readOnly className="w-full p-2 mt-1 border rounded-md bg-gray-100" />
+        <div className="mb-4">
+          <Label htmlFor="organization-name">Organization Name</Label>
+          <Input
+            id="organization-name"
+            type="text"
+            placeholder="Enter Organization Name"
+            value={organizationName}
+            onChange={(e) => setOrganizationName(e.target.value)}
+            required
+            className="mt-2"
+          />
         </div>
 
-        <Button type="submit" className="mt-6" disabled={loading}>
-          {loading ? "Creating..." : "Create Organization"}
+        <div className="mb-4">
+          <Label htmlFor="organization-description">Description</Label>
+          <Textarea
+            id="organization-description"
+            placeholder="Enter description for your organization"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+            className="mt-2"
+          />
+        </div>
+
+        <div className="mb-6">
+          <Label htmlFor="invite-code">Invite Code</Label>
+          <Input
+            id="invite-code"
+            type="text"
+            value={joinCode}
+            readOnly
+            disabled
+            className="mt-2 bg-gray-100 text-gray-500"
+          />
+        </div>
+
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitting || !organizationName || !description}
+          className="w-full mt-4 bg-[#0052CC] hover:bg-[#172B4D]"
+        >
+          {isSubmitting ? "Creating..." : "Create Organization"}
         </Button>
-      </form>
-
-      {showSuccessAlert && (
-        <Alert variant="destructive">
-          <CircleAlert className="h-4 w-4" />
-          <AlertTitle>Success!</AlertTitle>
-          <AlertDescription>Organization created successfully!</AlertDescription>
-        </Alert>
-      )}
-
-      {showErrorAlert && (
-        <Alert variant="destructive">
-          <CircleAlert className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>There was an error creating the organization. Please try again.</AlertDescription>
-        </Alert>
-      )}
-    </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
+
+export default CreateOrganizationDialog;
