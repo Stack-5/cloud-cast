@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabse/client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/authentication/icons";
 import Image from "next/image";
 
 const useGoogleSignIn = () => {

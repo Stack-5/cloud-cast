@@ -1,16 +1,16 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import AppSidebar from "@/components/app-sidebar";
+import AppSidebar from "@/components/sidebar/app-sidebar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => (
   <SidebarProvider>
-    <div className="flex h-screen w-screen"> {/* Ensure full screen width */}
+    <div className="flex h-screen w-screen overflow-hidden"> 
       {/* Sidebar */}
       <AppSidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col bg-gray-100 min-h-screen">
+      <div className="flex-1 flex flex-col bg-gray-100 h-screen overflow-y-auto">
         <SidebarTrigger />
-        <main className="p-6 flex-1 min-h-screen">{children}</main> {/* Ensures full height */}
+        <main className="p-6 flex-1">{children}</main>
       </div>
     </div>
   </SidebarProvider>

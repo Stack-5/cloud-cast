@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { Calendar, Home, Inbox, File, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { useUser } from "@/context/user-context";
-import SignOutButton from "@/components/signout-button";
+import SignOutButton from "@/components/authentication/signout-button";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import OrganizationsList from "@/components/organization/organization-list";
 
 import {
   Sidebar,
@@ -29,7 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import CreateOrganizationDialog from "./create-organization";
+import CreateOrganizationDialog from "../organization/create-organization";
 
 const items = [
   { title: "Overview", url: "/dashboard/client", icon: Home },
@@ -46,7 +47,7 @@ const getInitials = (name: string) => {
 };
 
 const AppSidebar = () => {
-  const { user, loading } = useUser(); 
+  const { user, loading } = useUser();
   const [selected, setSelected] = useState("Overview");
   const router = useRouter();
 
@@ -60,7 +61,12 @@ const AppSidebar = () => {
       <SidebarContent className="flex-1">
         <SidebarGroup>
           <SidebarGroupLabel className="flex items-center space-x-3">
-            <Image src="/cloud-cast.svg" width={24} height={24} alt="Cloud Cast Logo" />
+            <Image
+              src="/cloud-cast.svg"
+              width={24}
+              height={24}
+              alt="Cloud Cast Logo"
+            />
             <span className="text-2xl font-bold text-blue-600">Cloud Cast</span>
           </SidebarGroupLabel>
           <SidebarGroupContent className="mt-4">
@@ -88,13 +94,18 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <div className="flex items-center justify-between">
-            <SidebarGroupLabel className="text-lg font-medium text-gray-700">Organizations</SidebarGroupLabel>
-            <CreateOrganizationDialog /> 
-          </div>
-          <SidebarGroupContent />
-        </SidebarGroup>
+        {/* Organization */}
+        <SidebarContent>
+          <SidebarGroup>
+            <div className="flex items-center justify-between">
+              <SidebarGroupLabel className="text-lg font-medium text-gray-700">
+                Organizations
+              </SidebarGroupLabel>
+              <CreateOrganizationDialog />
+            </div>
+            <OrganizationsList />
+          </SidebarGroup>
+        </SidebarContent>
       </SidebarContent>
 
       {/* Sidebar Footer */}
