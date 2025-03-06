@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabse/client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,16 +16,12 @@ const useGoogleSignIn = () => {
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
-
-  const searchParams = useSearchParams();
-  const nextParam = searchParams.get("next");
-
-  useEffect(() => {
-    if (isClient && nextParam) {
-      setNext(nextParam);
+    const searchParams = new URLSearchParams(window.location.search); 
+    const nextParam = searchParams.get("next");
+    if (nextParam) {
+      setNext(nextParam); 
     }
-  }, [nextParam, isClient]);
+  }, []);
 
   const signInWithGoogle = async () => {
     setIsGoogleLoading(true);
