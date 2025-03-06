@@ -11,8 +11,7 @@ const getUserRole = async (): Promise<string | null> => {
     return null;
   }
 
-  console.log("Authenticated User ID:", user.id); // 🔍 Debugging
-
+  console.log("Authenticated User ID:", user.id); 
   // ✅ Fetch the role from `users` table
   const { data, error } = await supabase
     .from("users")
@@ -25,9 +24,9 @@ const getUserRole = async (): Promise<string | null> => {
     return null;
   }
 
-  console.log("Fetched Role from DB:", data?.role || "regular"); // 🔍 Debugging
+  console.log("Fetched Role from DB:", data?.role || "regular"); 
 
-  return data?.role || "regular"; // Default to "regular" if role is missing
+  return data?.role || "regular"; 
 };
 
 export default getUserRole;

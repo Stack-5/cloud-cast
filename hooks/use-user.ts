@@ -13,7 +13,6 @@ const useUser = () => {
 
   const fetchUser = useCallback(async () => {
     try {
-      // ✅ Force a session refresh
       await supabase.auth.refreshSession();
 
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -21,7 +20,6 @@ const useUser = () => {
 
       setUser(user);
 
-      // ✅ Fetch the latest role from the `users` table
       const { data, error } = await supabase
         .from("users")
         .select("role")
@@ -30,7 +28,7 @@ const useUser = () => {
 
       if (error) throw error;
 
-      setRole(data.role); // ✅ Always get the live role from DB
+      setRole(data.role); 
     } catch (err) {
       setError(err as AuthError);
     } finally {
