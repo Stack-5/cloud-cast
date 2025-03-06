@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";  
 import { createClient } from "@/lib/supabse/client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -68,9 +68,7 @@ const Signin = () => {
           <p className="text-sm text-[#172B4D] mb-4">
             Sign in with your institutional email address (<b>@neu.edu.ph</b>)
           </p>
-          <Suspense fallback={<div>Loading...</div>}>
-            <SigninButton isLoading={isGoogleLoading} onClick={signInWithGoogle} />
-          </Suspense>
+          <SigninButton isLoading={isGoogleLoading} onClick={signInWithGoogle} />
           <p className="mt-4 text-xs text-[#172B4D]">
             By signing in, you agree to our Terms of Service and Privacy Policy.
           </p>
