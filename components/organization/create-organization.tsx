@@ -26,14 +26,12 @@ const CreateOrganizationDialog = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Function to reset form fields
   const resetForm = () => {
     setOrganizationName("");
     setDescription("");
     setJoinCode(Math.random().toString(36).substr(2, 8));
   };
 
-  // Reset form fields when the dialog opens
   useEffect(() => {
     if (isDialogOpen) {
       resetForm();
@@ -72,10 +70,7 @@ const CreateOrganizationDialog = () => {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          className="p-2 rounded-sm cursor-pointer"
-        >
+        <Button variant="ghost" className="p-2 rounded-sm cursor-pointer">
           <Plus className="w-6 h-6 text-[#0052CC]" />
         </Button>
       </DialogTrigger>
@@ -83,7 +78,8 @@ const CreateOrganizationDialog = () => {
         <DialogHeader>
           <DialogTitle>Create a New Organization</DialogTitle>
           <DialogDescription>
-            Enter the details for your new organization. This action cannot be undone.
+            Enter the details for your new organization. This action cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
 
@@ -112,7 +108,7 @@ const CreateOrganizationDialog = () => {
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-2">
           <Label htmlFor="invite-code">Invite Code</Label>
           <Input
             id="invite-code"
@@ -127,7 +123,7 @@ const CreateOrganizationDialog = () => {
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || !organizationName || !description}
-          className="w-full mt-4 bg-[#0052CC] hover:bg-[#172B4D]"
+          className="w-full bg-[#0052CC] hover:bg-[#0747A6]"
         >
           {isSubmitting ? "Creating..." : "Create Organization"}
         </Button>

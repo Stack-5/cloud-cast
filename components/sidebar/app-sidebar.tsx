@@ -66,13 +66,13 @@ const AppSidebar = () => {
   };
 
   return (
-    <Sidebar className="h-screen flex flex-col">
+    <Sidebar className="h-screen flex flex-col bg-[#FFFFFF] text-[#172B4D] border-r border-[#C1C7D0]">
       <SidebarContent className="flex-1">
         {/* Logo Section */}
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center space-x-3">
+          <SidebarGroupLabel className="flex items-center space-x-3 text-[#0052CC] text-xl font-bold">
             <Image src="/cloud-cast.svg" width={24} height={24} alt="Cloud Cast Logo" />
-            <span className="text-2xl font-bold text-blue-600">Cloud Cast</span>
+            <span>Cloud Cast</span>
           </SidebarGroupLabel>
         </SidebarGroup>
 
@@ -82,9 +82,9 @@ const AppSidebar = () => {
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
-                  disabled={!selectedOrg} // Ensure it enables when org is selected
+                  disabled={!selectedOrg}
                   className={`flex items-center w-full px-3 py-2 text-lg font-medium rounded-md transition 
-                  ${selectedOrg ? "text-gray-800 hover:bg-blue-100 cursor-pointer" : "text-gray-400 cursor-not-allowed"}`}
+                  ${selectedOrg ? "text-[#172B4D] hover:bg-[#E6F0FF] cursor-pointer" : "text-[#C1C7D0] cursor-not-allowed"}`}
                 >
                   <ChevronRight className={`mr-2 transition-transform ${actionsOpen ? "rotate-90" : ""}`} />
                   Actions
@@ -94,17 +94,13 @@ const AppSidebar = () => {
                 <SidebarMenuSub>
                   {items.map(({ title, url, icon: Icon }) => (
                     <SidebarMenuSubItem key={title}>
-                      <SidebarMenuButton
-                        asChild
-                        disabled={!selectedOrg}
-                        className={`mb-2 ${selectedOrg ? "text-gray-800 hover:bg-blue-100" : "text-gray-400 cursor-not-allowed"}`}
-                      >
+                      <SidebarMenuButton asChild>
                         <Link
                           href={url}
                           prefetch
                           onClick={() => handleNavigation(url, title)}
-                          className={`flex items-center space-x-4 text-lg py-4 rounded-md transition-colors 
-                          ${selected !== title ? "text-gray-800 hover:bg-blue-100" : "bg-blue-600 text-white font-semibold"}`}
+                          className={`flex items-center space-x-4 text-lg py-2 px-3 rounded-md transition-colors 
+                          ${selected !== title ? "text-[#172B4D] hover:bg-[#E6F0FF]" : "bg-[#0052CC] text-white font-semibold"}`}
                         >
                           <Icon className="w-6 h-6" />
                           <span className="font-medium text-base">{title}</span>
@@ -121,20 +117,20 @@ const AppSidebar = () => {
         {/* Organizations */}
         <SidebarGroup>
           <div className="flex items-center justify-between">
-            <SidebarGroupLabel className="text-lg font-medium text-gray-700">
+            <SidebarGroupLabel className="text-lg font-medium text-[#172B4D]">
               Organizations
             </SidebarGroupLabel>
             <CreateOrganizationDialog />
           </div>
           <OrganizationsList setSelectedOrg={(orgId) => {
             setSelectedOrg(orgId);
-            setActionsOpen(true); // Auto open Actions when org is selected
+            setActionsOpen(true);
           }} />
         </SidebarGroup>
       </SidebarContent>
 
       {/* Sidebar Footer */}
-      <SidebarFooter>
+      <SidebarFooter className="bg-[#FFFFFF] border-t border-[#C1C7D0]">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
@@ -145,19 +141,19 @@ const AppSidebar = () => {
                   ) : (
                     <Avatar>
                       <AvatarImage src={user?.avatar_url || ""} />
-                      <AvatarFallback>
+                      <AvatarFallback className="bg-[#0052CC] text-white">
                         {user?.name ? getInitials(user.name) : "?"}
                       </AvatarFallback>
                     </Avatar>
                   )}
-                  <span className="ml-3 text-base font-medium">
+                  <span className="ml-3 text-base font-medium text-[#172B4D]">
                     {loading ? "Loading..." : user?.name || "Guest"}
                   </span>
-                  <ChevronDown className="ml-auto" />
+                  <ChevronDown className="ml-auto text-[#172B4D]" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" className="w-56">
-                <DropdownMenuItem>Account</DropdownMenuItem>
+              <DropdownMenuContent side="top" className="w-56 bg-white text-black shadow-md border border-[#C1C7D0]">
+                <DropdownMenuItem className="hover:bg-[#E6F0FF]">Account</DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <SignOutButton />
                 </DropdownMenuItem>

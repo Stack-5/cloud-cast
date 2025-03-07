@@ -1,7 +1,11 @@
 import {
   Card,
   CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
+import UserTable from "@/components/user/user-table";
 
 const ClientPage = () => {
   return (
@@ -13,10 +17,14 @@ const ClientPage = () => {
         </CardContent>
       </Card>
 
-      {/* Top Right Card */}
-      <Card className="col-span-3 row-span-3 col-start-4">
-        <CardContent className="flex items-center justify-center h-full">
-          2
+      {/* Users Table - Full Height Scrollable Card */}
+      <Card className="col-span-3 row-span-3 col-start-4 flex flex-col">
+        <CardHeader>
+          <CardTitle>Users</CardTitle>
+          <CardDescription>Manage and view organization users</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 overflow-hidden">
+          <UserTable />
         </CardContent>
       </Card>
 

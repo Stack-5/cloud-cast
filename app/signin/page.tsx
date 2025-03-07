@@ -16,10 +16,10 @@ const useGoogleSignIn = () => {
 
   useEffect(() => {
     setIsClient(true);
-    const searchParams = new URLSearchParams(window.location.search); 
+    const searchParams = new URLSearchParams(window.location.search);
     const nextParam = searchParams.get("next");
     if (nextParam) {
-      setNext(nextParam); 
+      setNext(nextParam);
     }
   }, []);
 
@@ -49,7 +49,7 @@ const SigninButton = ({ isLoading, onClick }: { isLoading: boolean; onClick: () 
     type="button"
     onClick={onClick}
     disabled={isLoading}
-    className="w-full bg-[#0052CC] hover:bg-[#0747A6] text-white flex items-center justify-center gap-2 py-2"
+    className="w-full bg-[#0052CC] hover:bg-[#0747A6] text-white flex items-center justify-center gap-2 py-2 rounded-md"
   >
     {isLoading ? (
       <Icons.loaderCircle className="mr-2 size-4 animate-spin" />
@@ -65,10 +65,12 @@ const Signin = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#F4F5F7] px-4">
-      <Card className="w-full max-w-sm shadow-lg p-6 bg-white border border-gray-200">
+      <Card className="w-full max-w-sm shadow-lg p-6 bg-white border border-[#C1C7D0] rounded-md">
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">Welcome to CloudCast</CardTitle>
-          <CardDescription className="text-center text-sm text-[#172B4D]">
+          <CardTitle className="text-center text-2xl font-bold text-[#172B4D]">
+            Welcome to CloudCast
+          </CardTitle>
+          <CardDescription className="text-center text-sm text-[#6B778C]">
             Powered and developed by Five-Stacks
           </CardDescription>
         </CardHeader>
@@ -77,8 +79,8 @@ const Signin = () => {
             Sign in with your institutional email address (<b>@neu.edu.ph</b>)
           </p>
           {isClient && <SigninButton isLoading={isGoogleLoading} onClick={signInWithGoogle} />}
-          <p className="mt-4 text-xs text-[#172B4D]">
-            By signing in, you agree to our Terms of Service and Privacy Policy.
+          <p className="mt-4 text-xs text-[#6B778C]">
+            By signing in, you agree to our <span className="text-[#0052CC] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#0052CC] hover:underline cursor-pointer">Privacy Policy</span>.
           </p>
         </CardContent>
       </Card>

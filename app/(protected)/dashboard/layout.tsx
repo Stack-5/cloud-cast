@@ -8,9 +8,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => (
       <AppSidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col bg-gray-100 h-screen">
+      <div className="flex-1 flex flex-col bg-blue-50 h-screen">
         <SidebarTrigger />
-        <main className="p-6 flex-1 overflow-hidden">{children}</main>
+        <main className="flex-1 overflow-hidden">{children}</main>
       </div>
     </div>
   </SidebarProvider>
