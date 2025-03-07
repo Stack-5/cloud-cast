@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Home, Inbox, File, ChevronUp } from "lucide-react";
+import { Calendar, Home, Inbox, File, ChevronDown, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useUser } from "@/context/user-context";
 import SignOutButton from "@/components/authentication/signout-button";
@@ -16,11 +16,12 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
 import {
@@ -29,6 +30,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 import CreateOrganizationDialog from "../organization/create-organization";
 
@@ -48,7 +55,9 @@ const getInitials = (name: string) => {
 
 const AppSidebar = () => {
   const { user, loading } = useUser();
-  const [selected, setSelected] = useState("Overview");
+  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const router = useRouter();
 
   const handleNavigation = (url: string, title: string) => {
@@ -59,53 +68,69 @@ const AppSidebar = () => {
   return (
     <Sidebar className="h-screen flex flex-col">
       <SidebarContent className="flex-1">
+        {/* Logo Section */}
         <SidebarGroup>
           <SidebarGroupLabel className="flex items-center space-x-3">
-            <Image
-              src="/cloud-cast.svg"
-              width={24}
-              height={24}
-              alt="Cloud Cast Logo"
-            />
+            <Image src="/cloud-cast.svg" width={24} height={24} alt="Cloud Cast Logo" />
             <span className="text-2xl font-bold text-blue-600">Cloud Cast</span>
           </SidebarGroupLabel>
-          <SidebarGroupContent className="mt-4">
-            <SidebarMenu>
-              {items.map(({ title, url, icon: Icon }) => (
-                <SidebarMenuItem key={title}>
-                  <SidebarMenuButton asChild className="mb-2">
-                    <Link
-                      href={url}
-                      prefetch
-                      onClick={() => handleNavigation(url, title)}
-                      className={`flex items-center space-x-4 text-lg py-4 rounded-md transition-colors ${
-                        selected !== title
-                          ? "text-gray-800 hover:bg-blue-100"
-                          : "bg-blue-600 text-white font-semibold"
-                      }`}
-                    >
-                      <Icon className="w-6 h-6" />
-                      <span className="font-medium text-base">{title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Organization */}
-        <SidebarContent>
-          <SidebarGroup>
-            <div className="flex items-center justify-between">
-              <SidebarGroupLabel className="text-lg font-medium text-gray-700">
-                Organizations
-              </SidebarGroupLabel>
-              <CreateOrganizationDialog />
-            </div>
-            <OrganizationsList />
-          </SidebarGroup>
-        </SidebarContent>
+        {/* Collapsible Actions */}
+        <SidebarMenu>
+          <Collapsible open={actionsOpen} onOpenChange={setActionsOpen} className="group/collapsible">
+            <SidebarMenuItem>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton
+                  disabled={!selectedOrg} // Ensure it enables when org is selected
+                  className={`flex items-center w-full px-3 py-2 text-lg font-medium rounded-md transition 
+                  ${selectedOrg ? "text-gray-800 hover:bg-blue-100 cursor-pointer" : "text-gray-400 cursor-not-allowed"}`}
+                >
+                  <ChevronRight className={`mr-2 transition-transform ${actionsOpen ? "rotate-90" : ""}`} />
+                  Actions
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenuSub>
+                  {items.map(({ title, url, icon: Icon }) => (
+                    <SidebarMenuSubItem key={title}>
+                      <SidebarMenuButton
+                        asChild
+                        disabled={!selectedOrg}
+                        className={`mb-2 ${selectedOrg ? "text-gray-800 hover:bg-blue-100" : "text-gray-400 cursor-not-allowed"}`}
+                      >
+                        <Link
+                          href={url}
+                          prefetch
+                          onClick={() => handleNavigation(url, title)}
+                          className={`flex items-center space-x-4 text-lg py-4 rounded-md transition-colors 
+                          ${selected !== title ? "text-gray-800 hover:bg-blue-100" : "bg-blue-600 text-white font-semibold"}`}
+                        >
+                          <Icon className="w-6 h-6" />
+                          <span className="font-medium text-base">{title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </SidebarMenuItem>
+          </Collapsible>
+        </SidebarMenu>
+
+        {/* Organizations */}
+        <SidebarGroup>
+          <div className="flex items-center justify-between">
+            <SidebarGroupLabel className="text-lg font-medium text-gray-700">
+              Organizations
+            </SidebarGroupLabel>
+            <CreateOrganizationDialog />
+          </div>
+          <OrganizationsList setSelectedOrg={(orgId) => {
+            setSelectedOrg(orgId);
+            setActionsOpen(true); // Auto open Actions when org is selected
+          }} />
+        </SidebarGroup>
       </SidebarContent>
 
       {/* Sidebar Footer */}
@@ -128,7 +153,7 @@ const AppSidebar = () => {
                   <span className="ml-3 text-base font-medium">
                     {loading ? "Loading..." : user?.name || "Guest"}
                   </span>
-                  <ChevronUp className="ml-auto" />
+                  <ChevronDown className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" className="w-56">

@@ -6,12 +6,18 @@ import { useUser } from "@/context/user-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Organization } from "@/types/organization";
+import { Folder } from "lucide-react"; // ✅ Import folder icon
 
-const OrganizationsList = () => {
+// ✅ Define expected prop type
+type OrganizationsListProps = {
+  setSelectedOrg: (orgId: string | null) => void;
+};
+
+const OrganizationsList = ({ setSelectedOrg }: OrganizationsListProps) => {
   const { user, loading } = useUser();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [isFetching, setIsFetching] = useState(true);
-  const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
+  const [selectedOrg, setLocalSelectedOrg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -20,7 +26,6 @@ const OrganizationsList = () => {
 
     const fetchOrganizations = async () => {
       setIsFetching(true);
-
       const { data, error } = await supabase
         .from("organizations")
         .select("id, name")
@@ -34,10 +39,9 @@ const OrganizationsList = () => {
 
     fetchOrganizations();
 
-    // ✅ Subscribe to real-time updates (INSERT, UPDATE, DELETE)
+    // ✅ Subscribe to real-time updates
     const channel = supabase.channel("organizations");
 
-    // Handle new organization insertions
     channel.on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "organizations" },
@@ -47,7 +51,6 @@ const OrganizationsList = () => {
       }
     );
 
-    // Handle updates to existing organizations
     channel.on(
       "postgres_changes",
       { event: "UPDATE", schema: "public", table: "organizations" },
@@ -59,7 +62,6 @@ const OrganizationsList = () => {
       }
     );
 
-    // Handle deletions from the organizations list
     channel.on(
       "postgres_changes",
       { event: "DELETE", schema: "public", table: "organizations" },
@@ -69,7 +71,6 @@ const OrganizationsList = () => {
       }
     );
 
-    // Subscribe to the real-time channel
     channel.subscribe();
 
     return () => {
@@ -94,11 +95,15 @@ const OrganizationsList = () => {
           organizations.map((org) => (
             <SidebarMenuItem key={org.id}>
               <SidebarMenuButton
-                onClick={() => setSelectedOrg(org.id)}
-                className={`flex items-center space-x-4 text-base py-3 px-4 rounded-md transition-colors 
+                onClick={() => {
+                  setLocalSelectedOrg(org.id);
+                  setSelectedOrg(org.id); // ✅ Pass selected organization to AppSidebar
+                }}
+                className={`flex items-center space-x-4 text-base py-3 rounded-md transition-colors 
                   ${selectedOrg === org.id ? "bg-[#0052CC] text-white font-semibold" : "text-gray-800 hover:bg-[#172B4D] hover:text-white"}
                 `}
               >
+                <Folder className="w-5 h-5 text-gray-800" /> 
                 <span className="font-medium text-base">{org.name}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
