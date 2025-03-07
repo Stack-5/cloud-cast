@@ -6,6 +6,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import UserTable from "@/components/user/user-table";
+import Inbox from "@/components/user/inbox";
+import Project from "@/components/user/project";
+import FileStorage from "@/components/user/file-storage";
 
 const ClientPage = () => {
   return (
@@ -30,22 +33,34 @@ const ClientPage = () => {
 
       {/* Bottom Left Card */}
       <Card className="col-span-2 row-span-2 row-start-4">
+        <CardHeader>
+          <CardTitle>Projects</CardTitle>
+          <CardDescription>Track progress and milestones</CardDescription>
+        </CardHeader>
         <CardContent className="flex items-center justify-center h-full">
-          3
+          <Project/>
         </CardContent>
       </Card>
 
       {/* Bottom Middle Card */}
-      <Card className="col-span-2 row-span-2 col-start-3 row-start-4">
+      <Card className="col-span-2 row-span-2 col-start-3 row-start-4 pb-4">
+        <CardHeader>
+          <CardTitle>Inbox</CardTitle>
+          <CardDescription>View and manage messages</CardDescription>
+        </CardHeader>
         <CardContent className="flex items-center justify-center h-full">
-          4
+          <Inbox />
         </CardContent>
       </Card>
 
       {/* Bottom Right Card */}
       <Card className="col-span-2 row-span-2 col-start-5 row-start-4">
+        <CardHeader>
+          <CardTitle>File Storage</CardTitle>
+          <CardDescription>Access organization documents</CardDescription>
+        </CardHeader>
         <CardContent className="flex items-center justify-center h-full">
-          5
+          <FileStorage/>
         </CardContent>
       </Card>
     </div>
