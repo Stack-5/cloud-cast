@@ -74,12 +74,11 @@ const CreateOrganizationDialog = () => {
           <Plus className="w-6 h-6 text-[#0052CC]" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-md w-full md:max-w-lg lg:max-w-xl p-4 md:p-6">
         <DialogHeader>
-          <DialogTitle>Create a New Organization</DialogTitle>
-          <DialogDescription>
-            Enter the details for your new organization. This action cannot be
-            undone.
+          <DialogTitle className="text-lg md:text-xl">Create a New Organization</DialogTitle>
+          <DialogDescription className="text-sm md:text-base">
+            Enter the details for your new organization. This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
 
@@ -123,7 +122,7 @@ const CreateOrganizationDialog = () => {
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || !organizationName || !description}
-          className="w-full bg-[#0052CC] hover:bg-[#0747A6]"
+          className="w-full bg-[#0052CC] hover:bg-[#0747A6] text-sm md:text-base py-2 md:py-3"
         >
           {isSubmitting ? "Creating..." : "Create Organization"}
         </Button>

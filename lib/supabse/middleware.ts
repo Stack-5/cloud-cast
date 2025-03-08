@@ -1,12 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-
 import getUserRole from "../get-user-role";
 
 export const updateSession = async (request: NextRequest) => {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  let supabaseResponse = NextResponse.next({ request });
 
   // Create a Supabase client
   const supabase = createServerClient(
@@ -19,9 +16,7 @@ export const updateSession = async (request: NextRequest) => {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          supabaseResponse = NextResponse.next({
-            request,
-          });
+          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );
@@ -35,37 +30,43 @@ export const updateSession = async (request: NextRequest) => {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Get the user's role using the custom getUserRole function
-  const role = await getUserRole();
-
-  // Redirect non-admin users trying to access admin pages to the home page
-  if (
-    user &&
-    role !== "admin" &&
-    request.nextUrl.pathname.startsWith("/admin")
-  ) {
+  // If user is logged out, redirect to sign-in page
+  if (!user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
+    if (
+      !request.nextUrl.pathname.startsWith("/signin") &&
+      !request.nextUrl.pathname.startsWith("/auth")
+    ) {
+      url.pathname = "/signin";
+      url.searchParams.set("next", request.nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
   }
 
-  // Redirect unauthenticated users to sign-in page
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/signin") &&
-    !request.nextUrl.pathname.startsWith("/auth")
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/signin";
-    url.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+  // Get user role (fix: default to "employee" if null)
+  const role = (await getUserRole()) || "employee";
+
+  // Role-based dashboard paths
+  const roleToDashboard: Record<string, string> = {
+    admin: "/dashboard/admin",
+    "product-manager": "/dashboard/product-manager",
+    employee: "/dashboard/employee",
+  };
+
+  // Ensure role exists in the mapping
+  const dashboardPath = roleToDashboard[role] || "/dashboard/employee";
+
+  // Redirect users trying to access the wrong dashboard
+  if (request.nextUrl.pathname.startsWith("/dashboard")) {
+    if (!request.nextUrl.pathname.startsWith(dashboardPath)) {
+      return NextResponse.redirect(new URL(dashboardPath, request.url));
+    }
   }
 
-  // Redirect authenticated users attempting to access the sign-in page to the home page
+  // Redirect users who are already logged in and trying to access /signin
   if (user && request.nextUrl.pathname.startsWith("/signin")) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(new URL(dashboardPath, request.url));
   }
 
   return supabaseResponse;

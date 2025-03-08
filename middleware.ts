@@ -1,5 +1,4 @@
 import { type NextRequest } from "next/server";
-
 import { updateSession } from "./lib/supabse/middleware";
 
 export const middleware = async (request: NextRequest) => {
@@ -7,5 +6,13 @@ export const middleware = async (request: NextRequest) => {
 };
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/protected/:path*", "/signin", "/admin/:path*"],
+  matcher: [
+    "/",
+    "/dashboard/:path*",
+    "/protected/:path*",
+    "/signin",
+    "/admin/:path*",
+    "/product-manager/:path*",
+    "/employee/:path*",
+  ],
 };
