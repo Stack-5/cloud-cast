@@ -1,4 +1,4 @@
-import ClientPage from "../common/client/page";
+import ClientPage from "../(common)/client/page";
 
 const Employee = () => <ClientPage restricted />; // Pass a prop to limit sections
 

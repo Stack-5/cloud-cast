@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/collapsible";
 
 import CreateOrganizationDialog from "../organization/create-organization";
+import JoinOrganizationDialog from "../organization/join-organization";
 
 const items = [
   { title: "Overview", url: "/dashboard/client", icon: Home },
@@ -69,7 +70,7 @@ const AppSidebar = () => {
     <Sidebar className="h-screen flex flex-col bg-[#FFFFFF] text-[#172B4D] border-r border-[#C1C7D0]">
       <SidebarContent className="flex-1">
         {/* Logo Section */}
-        <SidebarGroup>
+      <SidebarGroup>
           <SidebarGroupLabel className="flex items-center space-x-3 text-[#0052CC] text-xl font-bold">
             <Image src="/cloud-cast.svg" width={24} height={24} alt="Cloud Cast Logo" />
             <span>Cloud Cast</span>
@@ -120,7 +121,8 @@ const AppSidebar = () => {
             <SidebarGroupLabel className="text-lg font-medium text-[#172B4D]">
               Organizations
             </SidebarGroupLabel>
-            <CreateOrganizationDialog />
+
+            {user?.role === "admin" ? <CreateOrganizationDialog /> : <JoinOrganizationDialog />}
           </div>
           <OrganizationsList setSelectedOrg={(orgId) => {
             setSelectedOrg(orgId);

@@ -1,4 +1,4 @@
-import ClientPage from "../common/client/page";
+import ClientPage from "../(common)/client/page";
 
 const Admin = () => <ClientPage />;
 
