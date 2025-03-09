@@ -57,6 +57,7 @@ const getInitials = (name: string) => {
 const AppSidebar = () => {
   const { user, loading } = useUser();
   const [selected, setSelected] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
   const [actionsOpen, setActionsOpen] = useState(false);
   const router = useRouter();
@@ -124,10 +125,7 @@ const AppSidebar = () => {
 
             {user?.role === "admin" ? <CreateOrganizationDialog /> : <JoinOrganizationDialog />}
           </div>
-          <OrganizationsList setSelectedOrg={(orgId) => {
-            setSelectedOrg(orgId);
-            setActionsOpen(true);
-          }} />
+          <OrganizationsList />
         </SidebarGroup>
       </SidebarContent>
 
