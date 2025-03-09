@@ -11,6 +11,7 @@ import UserTable from "@/components/user/user-table";
 import Inbox from "@/components/user/inbox";
 import Project from "@/components/user/project";
 import FileStorage from "@/components/user/file-storage";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Analytics from "@/components/user/analytics";
 
 const ClientPage = ({ readOnly = false, restricted = false }: ClientPageProps) => {
@@ -91,7 +92,7 @@ const ClientPage = ({ readOnly = false, restricted = false }: ClientPageProps) =
             <CardDescription>Periodic chart reports about organization metrics</CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-center h-full">
-            <Analytics />
+            {/* <Analytics /> */}
           </CardContent>
         </Card>
       )}

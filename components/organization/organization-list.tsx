@@ -3,26 +3,24 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabse/client";
 import { useUser } from "@/context/user-context";
+import { useSelectedOrganization } from "@/context/selected-organization-context"; // ✅ Import
 import { Skeleton } from "@/components/ui/skeleton";
 import { SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Organization } from "@/types/organization";
 import { Folder } from "lucide-react"; // ✅ Import folder icon
 
-// ✅ Define expected prop type
-type OrganizationsListProps = {
-  setSelectedOrg: (orgId: string | null) => void;
-};
-
-const OrganizationsList = ({ setSelectedOrg }: OrganizationsListProps) => {
+const OrganizationsList = () => {
   const { user, loading } = useUser();
+  const { selectedOrg, setSelectedOrg } = useSelectedOrganization(); // ✅ Use context
+
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [isFetching, setIsFetching] = useState(true);
-  const [selectedOrg, setLocalSelectedOrg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
 
     const supabase = createClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
 
     const fetchOrganizations = async () => {
       setIsFetching(true);
@@ -33,50 +31,60 @@ const OrganizationsList = ({ setSelectedOrg }: OrganizationsListProps) => {
 
       if (!error && data) {
         setOrganizations(data);
+
+        // ✅ Auto-select the first organization only if one isn't already selected
+        if (!selectedOrg && data.length > 0) {
+          setSelectedOrg(data[0].id);
+        }
       }
+
       setIsFetching(false);
     };
 
     fetchOrganizations();
 
-    // ✅ Subscribe to real-time updates
-    const channel = supabase.channel("organizations");
+    // ✅ Real-time updates for organizations
+    channel = supabase
+      .channel("organizations")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "organizations" },
+        (payload) => {
+          console.log("New organization added:", payload.new);
+          setOrganizations((prev) => [...prev, payload.new as Organization]);
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "organizations" },
+        (payload) => {
+          console.log("Organization updated:", payload.new);
+          setOrganizations((prev) =>
+            prev.map((org) => (org.id === payload.new.id ? (payload.new as Organization) : org))
+          );
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "organizations" },
+        (payload) => {
+          console.log("Organization deleted:", payload.old);
+          setOrganizations((prev) => prev.filter((org) => org.id !== payload.old.id));
 
-    channel.on(
-      "postgres_changes",
-      { event: "INSERT", schema: "public", table: "organizations" },
-      (payload) => {
-        console.log("New organization added:", payload.new);
-        setOrganizations((prev) => [...prev, payload.new as Organization]);
-      }
-    );
-
-    channel.on(
-      "postgres_changes",
-      { event: "UPDATE", schema: "public", table: "organizations" },
-      (payload) => {
-        console.log("Organization updated:", payload.new);
-        setOrganizations((prev) =>
-          prev.map((org) => (org.id === payload.new.id ? (payload.new as Organization) : org))
-        );
-      }
-    );
-
-    channel.on(
-      "postgres_changes",
-      { event: "DELETE", schema: "public", table: "organizations" },
-      (payload) => {
-        console.log("Organization deleted:", payload.old);
-        setOrganizations((prev) => prev.filter((org) => org.id !== payload.old.id));
-      }
-    );
-
-    channel.subscribe();
+          // ✅ If the deleted org is the selected one, deselect it
+          if (selectedOrg === payload.old.id) {
+            setSelectedOrg(null);
+          }
+        }
+      )
+      .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
-  }, [user]);
+  }, [user, selectedOrg, setSelectedOrg]); // ✅ Include all dependencies
 
   if (loading || isFetching) {
     return (
@@ -95,10 +103,7 @@ const OrganizationsList = ({ setSelectedOrg }: OrganizationsListProps) => {
           organizations.map((org) => (
             <SidebarMenuItem key={org.id}>
               <SidebarMenuButton
-                onClick={() => {
-                  setLocalSelectedOrg(org.id);
-                  setSelectedOrg(org.id); // ✅ Pass selected organization to AppSidebar
-                }}
+                onClick={() => setSelectedOrg(org.id)} // ✅ Use global context
                 className={`flex items-center space-x-4 text-base py-3 rounded-md transition-colors 
                   ${selectedOrg === org.id ? "bg-[#0052CC] text-white font-semibold" : "text-gray-800 hover:bg-[#172B4D] hover:text-white"}
                 `}

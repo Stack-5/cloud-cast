@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/context/user-context";
+import { SelectedOrganizationProvider } from "@/context/selected-organization-context"; // ✅ Import fixed provider
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,9 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -37,8 +36,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <UserProvider>
-            {children}
-            <Toaster />
+            <SelectedOrganizationProvider> 
+              {children}
+              <Toaster />
+            </SelectedOrganizationProvider>
           </UserProvider>
         </ThemeProvider>
       </body>
